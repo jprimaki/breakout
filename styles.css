@@ -1,4 +1,9 @@
-#principal {
+#gameCanvas {
+    background-color: black;    
+    display: inline;
+}
 
-    
+#principal {
+    width: 100%;
+    text-align: center;
 }

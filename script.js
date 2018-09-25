@@ -4,54 +4,69 @@ window.onload = function() {
 };
 
 class Cubo {
-    constructor (x, y, w, h){
+    constructor (x, y, w, h, quantidade){
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
+        this.quantidade = quantidade;
     }
 }
 
-class Controlador {     
-
-
+class Controlador {       
     constructor () {  
-        this.listaCubo = [];      
-        this.canvas = document.getElementById("gameCanvas");
-        if (!this.canvas.getContext) {
-            alert("Não foi possível adquirir o canvas!");
-        }
-        else {
-            this.canvas = this.canvas.getContext("2d");
-        }
+        this.listaCubo = [];         
+        this.definirCanvas = document.getElementById("gameCanvas");        
     }    
 
-    QuantidadeCubos (minimo, maximo){
-        let valor = Math.floor(Math.random() * (maximo - minimo + 1)) + minimo;
-        console.log("QuantidadeCubos: " + valor);
-        return valor;
+    set definirCanvas (canvas) {        
+        if (!canvas.getContext) {
+            alert("Não foi possível definir o canvas!");
+        }
+        else {
+            this.canvas = canvas.getContext("2d");
+        }
     }
 
-    get CorAleatoria() {
+    get retornarCanvas() {
+        return this.canvas;
+    }
+
+    randomico (minimo = 0, maximo = 0){          
+        return Math.floor(Math.random() * (maximo - minimo + 1)) + minimo;
+    }
+
+    coraleatoria() {
         return 'hsl(' + 360 * Math.random() + ', 50%, 50%)';
     }
 
-    DesenharCubos () {     
-        let quantidadeCubos = this.QuantidadeCubos(7,15);
+    desenharNumero (cubo) {       
+        cubo.quantidade = this.randomico(1,3);
+        let padrao = 15;
+        this.retornarCanvas.fillStyle = "#ffffff";
+        this.retornarCanvas.fillText(cubo.quantidade, cubo.x + (cubo.w / 2), padrao + cubo.y);
+    }
+
+    desenharCubos () {                  
+        let quantidadeCubos = this.randomico(15,15);
         let espaco = 5;
         let x = 0;
         let y = 0;
         let w = 50;
         let h = 15;
         let cubo = null;
+        this.retornarCanvas.canvas.width = (quantidadeCubos * (w + espaco)) + 5; 
+
         for (var i = 0; i < quantidadeCubos; i++) {
             x = 0;
             for (var z = 0; z < quantidadeCubos; z++) {
-                this.canvas.fillStyle = this.CorAleatoria;
-                this.canvas.fillRect (x + espaco, y + espaco, w, h);                               
+                this.retornarCanvas.fillStyle = this.coraleatoria();
+                this.retornarCanvas.fillRect (x + espaco, y + espaco, w, h);                               
                 cubo = new Cubo(x, y, w, h);
-                this.listaCubo.push(cubo);        
+                this.listaCubo.push(cubo);  
 
+                this.desenharNumero(cubo);
+                
                 x += w + espaco;
             }       
             y += h + espaco;       
@@ -59,10 +74,20 @@ class Controlador {
 
     }    
 
+    desenharBase () {                                  
+        this.retornarCanvas.beginPath();
+        this.retornarCanvas.lineCap = "round";
+        this.retornarCanvas.lineWidth = 10;
+        this.retornarCanvas.moveTo(this.retornarCanvas.canvas.clientWidth / 2, this.retornarCanvas.canvas.clientHeight / 2);
+        this.retornarCanvas.lineTo(950, 156);
+        this.strokeStyle = "#FF0000";
+        this.retornarCanvas.stroke();      
+    }
+
     Desenhar (){        
-        this.DesenharCubos();  
-        //this.DesenharBola; 
-        //this.DesenharSaco;         
+        this.desenharCubos();  
+        //this.desenharBase();
+        //this.DesenharBola;     
     }
     
 }
