@@ -1,27 +1,35 @@
+window.onload = function() {
+    controlador = new Controlador();
+    controlador.Desenhar();
+};
+
 class Cubo {
     constructor (x, y, w, h){
         this.x = x;
         this.y = y;
         this.w = w;
-        this.h = w;
+        this.h = h;
     }
 }
 
 class Controlador {     
-    ListaCubo = [];
 
-    constructor () {        
-        this.canva = document.getElementById("gameCanva");
-        if (!this.canva.getContext) {
+
+    constructor () {  
+        this.listaCubo = [];      
+        this.canvas = document.getElementById("gameCanvas");
+        if (!this.canvas.getContext) {
             alert("Não foi possível adquirir o canvas!");
         }
         else {
-            this.canva = this.canva.getContext("2d");
+            this.canvas = this.canvas.getContext("2d");
         }
     }    
 
-    get QuantidadeCubos (minimo, maximo){
-        return Math.floor(Math.random() * (maximo - minimo + 1)) + minimo;
+    QuantidadeCubos (minimo, maximo){
+        let valor = Math.floor(Math.random() * (maximo - minimo + 1)) + minimo;
+        console.log("QuantidadeCubos: " + valor);
+        return valor;
     }
 
     get CorAleatoria() {
@@ -31,13 +39,18 @@ class Controlador {
     DesenharCubos () {     
         let quantidadeCubos = this.QuantidadeCubos(7,15);
         let espaco = 5;
-        for (i in quantidadeCubos) {
+        let x = 0;
+        let y = 0;
+        let w = 50;
+        let h = 15;
+        let cubo = null;
+        for (var i = 0; i < quantidadeCubos; i++) {
             x = 0;
-            for (z in quantidadeCubos) {
-                canva.fillStyle = this.CorAleatoria;
-                canva.fillRect (x + espaco, y + espaco, w, h);                               
+            for (var z = 0; z < quantidadeCubos; z++) {
+                this.canvas.fillStyle = this.CorAleatoria;
+                this.canvas.fillRect (x + espaco, y + espaco, w, h);                               
                 cubo = new Cubo(x, y, w, h);
-                ListaCubo.push(Cubo);        
+                this.listaCubo.push(cubo);        
 
                 x += w + espaco;
             }       
@@ -47,15 +60,11 @@ class Controlador {
     }    
 
     Desenhar (){        
-        this.DesenharCubos;  
-        //this.DesenharBola;          
+        this.DesenharCubos();  
+        //this.DesenharBola; 
+        //this.DesenharSaco;         
     }
     
-}
-
-var Inicializar = function () {    
-    controlador = new Controlador;
-    controlador.Desenhar();
 }
 
 //var AtualizarCor = function () {    
