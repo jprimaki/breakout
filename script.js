@@ -1,6 +1,6 @@
 window.onload = function() {
     controlador = new Controlador();
-    controlador.Desenhar();    
+    controlador.inicializar();    
 };
 
 class Cubo {
@@ -13,7 +13,7 @@ class Cubo {
     }
 }
 
-class Controlador {       
+class Controlador {     
     constructor () {  
         this.listaCubo = [];         
         this.definirCanvas = document.getElementById("gameCanvas");        
@@ -110,15 +110,24 @@ class Controlador {
         this.alterarEstilo = "rgba(255, 255, 255, " + alfa + ")";
         this.retornarCanvas.textAlign = "center";
         this.retornarCanvas.font = "35px Georgia";
-        this.retornarCanvas.fillText(texto, this.larguraCanvas/2, this.alturaCanvas/2);      
-        //let larguraTexto = this.retornarCanvas.measureText(texto).width;        
+        this.retornarCanvas.fillText(texto, this.larguraCanvas/2, this.alturaCanvas/2); 
+        //this.retornarCanvas.clearRect(0, 300, this.larguraCanvas,  200);
     }
 
-    Desenhar (){        
+    atualizarCor ()  {
+        this.listaCubo;
+      //  for (let i = 0; this.listaCubo.length-1; i++ ){
+         //   console.log("1");
+       // }
+    //    console.log("1");
+    }
+
+    inicializar (){        
         this.desenharCubos();  
         this.desenharBase();
         this.desenharBola();     
         this.desenharStart();
+        window.requestAnimationFrame(this.atualizarCor); //.bin(this)
     }
     
 }
