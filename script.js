@@ -1,3 +1,8 @@
+var requestAnimationFrame = window.requestAnimationFrame ||
+                            window.mozRequestAnimationFrame ||
+                            window.webkitRequestAnimationFrame ||
+                            window.msRequestAnimationFrame;
+
 window.onload = function() {
     controlador = new Controlador();
     controlador.inicializar();    
@@ -14,9 +19,12 @@ class Cubo {
 }
 
 class Controlador {     
-    constructor () {  
-        this.listaCubo = [];         
-        this.definirCanvas = document.getElementById("gameCanvas");        
+    constructor () {          
+        this.ultimo = 0;
+        this.alfa = 1;        
+        this.listaCubo = [];   
+        this.visivel = true;      
+        this.definirCanvas = document.getElementById("gameCanvas");                        
     }    
 
     set definirCanvas (canvas) {        
@@ -53,11 +61,29 @@ class Controlador {
     }
 
     desenharNumero (cubo) {               
-        let padrao = 15;
+        let padrao = 10;
+        let texto = "";
 
-        cubo.quantidade = this.randomico(1,3);
+        cubo.quantidade = this.randomico(1,3);        
+        texto = cubo.quantidade;
         this.alterarEstilo = "#ffffff";
-        this.retornarCanvas.fillText(cubo.quantidade, cubo.x + (cubo.w / 2), padrao + cubo.y);
+        this.retornarCanvas.fillText(cubo.quantidade, cubo.x + (cubo.w / 2) - this.retornarCanvas.measureText(texto).width, cubo.y + padrao);
+    }
+
+    adicionarCubo (x = 0, y = 0, w = 0, h = 0) {
+        let cubo = null;
+        cubo = new Cubo(x, y, w, h);
+        this.listaCubo.push(cubo);
+
+        return cubo;
+    }
+
+    desenharCubo (x = 0, y = 0, w = 0, h = 0, adicionar = false) {
+        this.alterarEstilo = this.corAleatoria();
+        this.retornarCanvas.fillRect(x, y, w, h); 
+        
+        if (adicionar)
+            return this.adicionarCubo(x,y,w,h);
     }
 
     desenharCubos () {                  
@@ -74,12 +100,8 @@ class Controlador {
         for (var i = 0; i < quantidadeCubos; i++) {
             x = 0;
             for (var z = 0; z < quantidadeCubos; z++) {
-                this.alterarEstilo = this.corAleatoria();
-                this.retornarCanvas.fillRect (x + espacoEntreCubo, y + espacoEntreCubo, w, h);                               
-                cubo = new Cubo(x, y, w, h);
-                this.listaCubo.push(cubo);  
-
-                this.desenharNumero(cubo);
+                this.desenharCubo(x + espacoEntreCubo, y + espacoEntreCubo, w, h, true);
+                //this.desenharNumero(cubo);
                 
                 x += w + espacoEntreCubo;
             }       
@@ -96,30 +118,48 @@ class Controlador {
         this.retornarCanvas.fillRect (this.larguraCanvas / 2 - (widthBase / 2), this.alturaCanvas - borda, widthBase, heightBase);                                    
     }
 
-    desenharBola (){
+    desenharBola (){               
+        //this.retornarCanvas.clearRect(380, 520, 60,  250);   
         this.retornarCanvas.beginPath();
         this.alterarEstilo ="#ff0000";        
-        this.retornarCanvas.arc(this.larguraCanvas / 2, this.alturaCanvas / 1.5 ,20,0,Math.PI*2,true); 
+        let obj = this.retornarCanvas.arc(this.larguraCanvas / 2, this.alturaCanvas / 1.5, 20,0, Math.PI*2, true); 
         this.retornarCanvas.closePath();
-        this.retornarCanvas.fill();
+        this.retornarCanvas.fill();        
     }
 
-    desenharStart (){
-        let alfa = 1;
+    desenharStart (){    
+        this.retornarCanvas.clearRect(0, 300, this.larguraCanvas,  200);     
+        
+        if ((parseFloat(this.alfa.toFixed(2)) > 0) && (this.visivel)){
+            this.alfa -= 0.015; 
+        }
+        else {            
+            this.alfa += 0.015
+            this.visivel = this.alfa.toFixed(2) >= 1;
+        }        
+
         let texto = "PRESS ENTER TO START";
-        this.alterarEstilo = "rgba(255, 255, 255, " + alfa + ")";
+        this.alterarEstilo = "rgba(255, 255, 255, " + this.alfa + ")";
         this.retornarCanvas.textAlign = "center";
         this.retornarCanvas.font = "35px Georgia";
-        this.retornarCanvas.fillText(texto, this.larguraCanvas/2, this.alturaCanvas/2); 
-        //this.retornarCanvas.clearRect(0, 300, this.larguraCanvas,  200);
+        this.retornarCanvas.fillText(texto, this.larguraCanvas/2, this.alturaCanvas/2);         
+
+        var startAnim = requestAnimationFrame(this.desenharStart.bind(this)); 
     }
 
-    atualizarCor ()  {
-        this.listaCubo;
-      //  for (let i = 0; this.listaCubo.length-1; i++ ){
-         //   console.log("1");
-       // }
-    //    console.log("1");
+    segundo (segundo = 0) {
+        return segundo * 1000;
+    }
+
+    animacaoAtualizarCor (now)  {   
+        if (!this.ultimo || now - this.ultimo >= this.segundo(1)) {
+            this.ultimo = now;
+        this.listaCubo.forEach(cubo => {
+            this.desenharCubo(cubo.x, cubo.y, cubo.w, cubo.h);            
+        });               
+    }
+
+        var atualizacorAnim = requestAnimationFrame(this.animacaoAtualizarCor.bind(this)); 
     }
 
     inicializar (){        
@@ -127,20 +167,7 @@ class Controlador {
         this.desenharBase();
         this.desenharBola();     
         this.desenharStart();
-        window.requestAnimationFrame(this.atualizarCor); //.bin(this)
+        this.animacaoAtualizarCor();        
     }
     
-}
-
-//var AtualizarCor = function () {    
-//    for (i = 0; i < ListaCubo.length-1; i++) {
-//        Cubo = ListaCubo[i];
-//        canva.fillStyle = 'hsl(' + 360 * Math.random() + ', 50%, 50%)';    
-//        canva.fillRect (Cubo.x, Cubo.y, Cubo.w, Cubo.h);  
-//    }
-
-//}
-
-var Update = function () {
- //   AtualizarCor();
 }
